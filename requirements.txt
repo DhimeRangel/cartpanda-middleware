@@ -1,0 +1,7 @@
+# Não há dependências externas além dos módulos padrão do Python
+# Mas é uma boa prática incluir o requests ou urllib3 se estivéssemos usando,
+# ou deixar vazio se for apenas módulos padrão.
+# Como o código usa apenas módulos padrão (json, os, http.server, urllib.request),
+# este arquivo pode ser deixado vazio ou excluído.
+# No entanto, para garantir que o ambiente Python seja inicializado corretamente,
+# vou criar um arquivo vazio.
