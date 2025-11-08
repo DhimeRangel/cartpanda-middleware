@@ -9,7 +9,7 @@ from flask import Flask, request, jsonify
 EVOTALKS_API_KEY = os.environ.get("EVOTALKS_API_KEY")
 EVOTALKS_QUEUE_ID = os.environ.get("EVOTALKS_QUEUE_ID")
 EVOTALKS_INSTANCE_DOMAIN = os.environ.get("EVOTALKS_INSTANCE_DOMAIN", "ergonaturais.evotalks.com.br")
-TEMPLATE_ID = os.environ.get("EVOTALKS_TEMPLATE_ID", "3")
+TEMPLATE_ID = os.environ.get("EVOTALKS_TEMPLATE_ID", "4")
 
 # Endpoint validado pelo usuário: /int/enqueueMessageToSend
 EVOTALKS_ENDPOINT = f"https://{EVOTALKS_INSTANCE_DOMAIN}/int/enqueueMessageToSend"
