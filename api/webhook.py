@@ -5,7 +5,6 @@ import urllib.error
 from flask import Flask, request, jsonify
 
 # --- CONFIGURAÇÃO DO EVOTALKS ---
-# A chave API e o Queue ID serão lidos das variáveis de ambiente na Vercel
 EVOTALKS_API_KEY = os.environ.get("EVOTALKS_API_KEY")
 EVOTALKS_QUEUE_ID = os.environ.get("EVOTALKS_QUEUE_ID")
 EVOTALKS_INSTANCE_DOMAIN = os.environ.get("EVOTALKS_INSTANCE_DOMAIN", "ergonaturais.evotalks.com.br")
@@ -17,12 +16,20 @@ EVOTALKS_ENDPOINT = f"https://{EVOTALKS_INSTANCE_DOMAIN}/int/enqueueMessageToSen
 # Inicializa o aplicativo Flask
 app = Flask(__name__)
 
-# A Vercel espera que o arquivo exporte o objeto 'app' ou 'application'
-# para que o servidor Gunicorn possa iniciá-lo.
-
 @app.route('/api/webhook', methods=['POST'])
 def webhook_handler():
+    # Variáveis para log
+    api_key_log = f"{EVOTALKS_API_KEY[:4]}...{EVOTALKS_API_KEY[-4:]}" if EVOTALKS_API_KEY and len(EVOTALKS_API_KEY) > 8 else (EVOTALKS_API_KEY if EVOTALKS_API_KEY else 'None')
+    
     try:
+        # --- VERIFICAÇÃO DE VARIÁVEIS DE AMBIENTE (NOVO) ---
+        print("--- VARIÁVEIS DE AMBIENTE ---")
+        print(f"API_KEY: {api_key_log}")
+        print(f"QUEUE_ID: {EVOTALKS_QUEUE_ID}")
+        print(f"INSTANCE_DOMAIN: {EVOTALKS_INSTANCE_DOMAIN}")
+        print(f"TEMPLATE_ID: {TEMPLATE_ID}")
+        print("-----------------------------")
+        
         # 1. Ler o payload do CartPanda
         cartpanda_payload = request.get_json(silent=True)
         
@@ -59,10 +66,16 @@ def webhook_handler():
         # 4. Montar payload para EvoTalks
         # Conversão para inteiro (CRUCIAL)
         try:
+            # Verifica se a variável existe antes de tentar converter
+            if not EVOTALKS_QUEUE_ID:
+                raise ValueError("EVOTALKS_QUEUE_ID está vazio ou não configurado.")
+            if not EVOTALKS_API_KEY:
+                raise ValueError("EVOTALKS_API_KEY está vazio ou não configurado.")
+                
             queue_id_int = int(EVOTALKS_QUEUE_ID)
-        except (TypeError, ValueError):
-            # Se a variável de ambiente não estiver configurada, falha com 500
-            return jsonify({"status": "error", "message": "Variável de ambiente EVOTALKS_QUEUE_ID não configurada ou inválida (deve ser um número)"}), 500
+        except (TypeError, ValueError) as e:
+            # Este erro 500 será retornado se a variável estiver faltando
+            return jsonify({"status": "error", "message": f"Erro de Configuração: {str(e)}"}), 500
 
         evotalks_payload = {
             "apiKey": EVOTALKS_API_KEY,
